@@ -21,14 +21,13 @@ def calc_eval(exp):
         elif operator == 'define': # define expressions
             return eval_define(operands)
         else: # Call expressions
-            return calc_apply(operands, ) # UPDATE THIS FOR Q2
-    elif exp in OPERATORS:   # Looking up procedures
+            return calc_apply(calc_eval(operator),operands.map(calc_eval)) # 递归地检查operands
+    elif exp in OPERATORS:   # Looking up procedures 找对应的映射
         return OPERATORS[exp]
     elif isinstance(exp, int) or isinstance(exp, bool):   # Numbers and booleans
         return exp
-    elif _________________: # CHANGE THIS CONDITION FOR Q4
-        return _________________ # UPDATE THIS FOR Q4
-
+    elif exp in bindings: # CHANGE THIS CONDITION FOR Q4
+        return  bindings[exp]# UPDATE THIS FOR Q4
 def calc_apply(op, args):
     return op(args)
 
@@ -52,7 +51,17 @@ def floor_div(args):
     20
     """
     "*** YOUR CODE HERE ***"
-
+    if args is nil or args.rest is nil:
+        raise TypeError("// 没有东西！")
+    
+    div_end=args.first
+    current=args.rest
+    
+    while current != nil:
+        divisor = current.first
+        div_end = div_end // divisor
+        current = current.rest
+    return div_end
 scheme_t = True   # Scheme's #t
 scheme_f = False  # Scheme's #f
 
@@ -74,6 +83,19 @@ def eval_and(expressions):
     True
     """
     "*** YOUR CODE HERE ***"
+    if expressions is nil:
+        return scheme_t
+    current = expressions
+    while current.rest is not nil:#检查是否到最后一个表达式
+        val = calc_eval(current.first)
+        if val is scheme_f:
+            return scheme_f
+        current = current.rest
+    
+    return calc_eval(current.first)
+        
+        
+    
 
 bindings = {}
 
@@ -93,7 +115,14 @@ def eval_define(expressions):
     2
     """
     "*** YOUR CODE HERE ***"
-
+    symbol = expressions.first # 获取符号名称
+    # 2 对表达式求值（递归调用calc_eval）
+    value = calc_eval(expressions.rest.first)
+    # 3 将绑定存入全局字典
+    bindings[symbol] = value
+    
+    return symbol
+    
 OPERATORS = { "//": floor_div, "+": addition, "-": subtraction, "*": multiplication, "/": division }
 
 class Pair:
