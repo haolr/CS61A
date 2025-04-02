@@ -7,21 +7,13 @@ test = {
         {
           'code': r"""
           >>> eval_all(Pair(2, nil), env)
-          2b7cdec3904f986982cbd24a0bc12887
-          # locked
-          # choice: 2
-          # choice: SchemeError
+          2
           >>> eval_all(Pair(4, Pair(5, nil)), env)
-          b33c0f7206201b4aaeae595493888600
-          # locked
-          # choice: 4
-          # choice: 5
-          # choice: (4 5)
-          # choice: SchemeError
+          5
           >>> eval_all(nil, env) # return None (meaning undefined)
           """,
           'hidden': False,
-          'locked': True,
+          'locked': False,
           'multiline': False
         },
         {

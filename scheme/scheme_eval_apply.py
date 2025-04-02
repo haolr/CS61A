@@ -15,8 +15,8 @@ def scheme_eval(expr, env, _=None): # Optional third argument is ignored
 
     >>> expr = read_line('(+ 2 2)')
     >>> expr
-    Pair('+', Pair(2, Pair(2, nil)))
-    >>> scheme_eval(expr, create_global_frame())
+    Pair('+', Pair(2, Pair(2, nil)))   
+    >>> scheme_eval(expr, create_global_frame())  
     4
     """
     # Evaluate atoms  

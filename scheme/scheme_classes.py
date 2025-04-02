@@ -28,7 +28,6 @@ class Frame:
         # BEGIN PROBLEM 1
         "*** YOUR CODE HERE ***"
         self.bindings[symbol.lower()]=value
-
         # END PROBLEM 1
 
     def lookup(self, symbol):
