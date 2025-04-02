@@ -19,21 +19,25 @@ def scheme_eval(expr, env, _=None): # Optional third argument is ignored
     >>> scheme_eval(expr, create_global_frame())
     4
     """
-    # Evaluate atoms
-    if scheme_symbolp(expr):
-        return env.lookup(expr)
-    elif self_evaluating(expr):
-        return expr
+    # Evaluate atoms  
+    if scheme_symbolp(expr):#处理符号
+        return env.lookup(expr)# 在当前环境中查找符号的值
+    elif self_evaluating(expr):# 处理自求值的表达式 ？
+        return expr# 返回原始值（如数字或字符串）？
 
     # All non-atomic expressions are lists (combinations)
     if not scheme_listp(expr):
         raise SchemeError('malformed list: {0}'.format(repl_str(expr)))
-    first, rest = expr.first, expr.rest
+    
+    first, rest = expr.first, expr.rest  # 如果是列表，分解为操作符和操作数
     if scheme_symbolp(first) and first in scheme_forms.SPECIAL_FORMS:
         return scheme_forms.SPECIAL_FORMS[first](rest, env)
     else:
         # BEGIN PROBLEM 3
         "*** YOUR CODE HERE ***"
+        operator = scheme_eval(first,env)
+        opperands = rest.map(lambda operand: scheme_eval(operand,env) )
+        return scheme_apply(operator,opperands,env)
         # END PROBLEM 3
 
 def scheme_apply(procedure, args, env):
@@ -44,11 +48,19 @@ def scheme_apply(procedure, args, env):
        assert False, "Not a Frame: {}".format(env)
     if isinstance(procedure, BuiltinProcedure):
         # BEGIN PROBLEM 2
-        "*** YOUR CODE HERE ***"
+        python_args=[] #存放scheme的列表元素
+        while isinstance(args,Pair):
+            python_args.append(args.first)
+            args=args.rest
+            
+        if procedure.need_env:
+            python_args.append(env)
         # END PROBLEM 2
+        
         try:
             # BEGIN PROBLEM 2
-            "*** YOUR CODE HERE ***"
+            # 3. 调用 Python 实现的 Scheme 内置过程
+            return procedure.py_func(*python_args)
             # END PROBLEM 2
         except TypeError as err:
             raise SchemeError('incorrect number of arguments: {0}'.format(procedure))
