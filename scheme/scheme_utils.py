@@ -86,9 +86,8 @@ def validate_form(expr, min, max=float('inf')):
         raise SchemeError('too many operands in form')
 
 def validate_formals(formals):
-    """Check that FORMALS is a valid parameter list, a Scheme list of symbols
-    in which each symbol is distinct. Raise a SchemeError if the list of
-    formals is not a list of symbols or if any symbol is repeated.
+    """检查Formals是一个有效的参数列表，一个符号的方案列表
+    其中每个符号是不同的。如果列表形式不是符号列表，也不是重复任何符号。
 
     >>> validate_formals(read_line('(a b c)'))
     """

@@ -88,7 +88,9 @@ def do_lambda_form(expressions, env):
     formals = expressions.first
     validate_formals(formals)
     # BEGIN PROBLEM 7
-    "*** YOUR CODE HERE ***"
+    
+    
+    
     # END PROBLEM 7
 
 def do_if_form(expressions, env):
