@@ -44,9 +44,17 @@ def do_define_form(expressions, env):
         return signature
         # END PROBLEM 4
     elif isinstance(signature, Pair) and scheme_symbolp(signature.first):
-        # defining a named procedure e.g. (define (f x y) (+ x y))
+        # defining a named procedure e.g.   这个是lambda的简化形式
+        # (define (f x y)<- 这个是signature (+ x y))<- 这个是expressions 
         # BEGIN PROBLEM 10
         "*** YOUR CODE HERE ***"
+        func_name = signature.first  #取出函数f 
+        formals = signature.rest  #取出 形式参数 比如（X Y）
+        body = expressions  #函数式
+        lambda_proc = do_lambda_form(expressions,env)  #创建一个lambda 对象
+        env.define(func_name,lambda_proc)
+        return func_name
+        
         # END PROBLEM 10
     else:
         bad_signature = signature.first if isinstance(signature, Pair) else signature
@@ -77,19 +85,19 @@ def do_begin_form(expressions, env):
     validate_form(expressions, 1)
     return eval_all(expressions, env)
 
-def do_lambda_form(expressions, env):
+def do_lambda_form(expressions, env):#把一个expressions 拆成 lambda 
     """Evaluate a lambda form.
 
     >>> env = create_global_frame()
     >>> do_lambda_form(read_line("((x) (+ x 2))"), env) # evaluating (lambda (x) (+ x 2))
     LambdaProcedure(Pair('x', nil), Pair(Pair('+', Pair('x', Pair(2, nil))), nil), <Global Frame>)
     """
-    validate_form(expressions, 2)
+    validate_form(expressions, 2)#检查两个部分
     formals = expressions.first
-    validate_formals(formals)
+    validate_formals(formals)#检查合法性
     # BEGIN PROBLEM 7
     body = expressions.rest
-    return LambdaProcedure(formals, body, env)
+    return LambdaProcedure(formals, body, env)#这是一个lambdaprodure对象 存 函数名 和 形参
     # END PROBLEM 7
 
 def do_if_form(expressions, env):
@@ -124,7 +132,20 @@ def do_and_form(expressions, env):
     False
     """
     # BEGIN PROBLEM 12
-    "*** YOUR CODE HERE ***"
+
+    if expressions is nil:  # 没有表达式，and 返回 True
+        return True
+
+    result = None
+    while expressions is not nil:
+        expr = expressions.first
+        result = scheme_eval(expr, env)  # 逐个求值
+        if is_scheme_false(result):      # 一旦遇到 False，立即返回
+            return result
+        expressions = expressions.rest
+    return result  # 全为真，返回最后一个值
+
+
     # END PROBLEM 12
 
 def do_or_form(expressions, env):
@@ -142,7 +163,17 @@ def do_or_form(expressions, env):
     6
     """
     # BEGIN PROBLEM 12
-    "*** YOUR CODE HERE ***"
+    if expressions is nil:  # 没有表达式，or 返回 False
+        return False
+
+    result = None
+    while expressions is not nil:
+        expr = expressions.first
+        result = scheme_eval(expr, env)  # 逐个求值
+        if is_scheme_true(result):       # 一旦遇到真，立即返回
+            return result
+        expressions = expressions.rest
+    return result  # 全为假，返回最后一个（False）
     # END PROBLEM 12
 
 def do_cond_form(expressions, env):
@@ -154,15 +185,19 @@ def do_cond_form(expressions, env):
     while expressions is not nil:
         clause = expressions.first
         validate_form(clause, 1)
-        if clause.first == 'else':
+        if clause.first == 'else': #如果是else子句，直接为真
             test = True
-            if expressions.rest != nil:
+            if expressions.rest != nil:#但是else只能是最后一个子句
                 raise SchemeError('else must be last')
         else:
-            test = scheme_eval(clause.first, env)
+            test = scheme_eval(clause.first, env) #评估谓语表达式
+            
         if is_scheme_true(test):
             # BEGIN PROBLEM 13
-            "*** YOUR CODE HERE ***"
+            if clause.rest is nil:        # 子句没有结果表达式
+                return test               # 返回谓词本身的值
+            else:
+                return eval_all(clause.rest, env)  # 有结果表达式就全评估并返回最后一个
             # END PROBLEM 13
         expressions = expressions.rest
 
@@ -186,7 +221,27 @@ def make_let_frame(bindings, env):
         raise SchemeError('bad bindings list in let form')
     names = vals = nil
     # BEGIN PROBLEM 14
-    "*** YOUR CODE HERE ***"
+    symbols = []  # 用于最后检查重复名
+
+    pointer = bindings  # 临时变量用于遍历绑定列表
+    while pointer is not nil:
+        bind = pointer.first  # 每个 bind 是一个 Pair，形如 (symbol expr)
+        validate_form(bind, 2, 2)  # 必须恰好有两个元素：一个 symbol，一个表达式
+
+        symbol = bind.first
+        expr = bind.rest.first
+
+        if not scheme_symbolp(symbol):
+            raise SchemeError('non-symbol in let binding')
+
+        val = scheme_eval(expr, env)  # 在“外部环境”求值
+        names = Pair(symbol, names)
+        vals = Pair(val, vals)
+        symbols.append(symbol)
+
+        pointer = pointer.rest
+
+    validate_formals(scheme_list(*symbols))  # 检查变量名是否唯一
     # END PROBLEM 14
     return env.make_child_frame(names, vals)
 
@@ -228,7 +283,10 @@ def do_mu_form(expressions, env):
     formals = expressions.first
     validate_formals(formals)
     # BEGIN PROBLEM 11
-    "*** YOUR CODE HERE ***"
+    body = expressions.rest
+    return MuProcedure(formals,body)
+    
+    
     # END PROBLEM 11
 
 
