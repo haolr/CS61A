@@ -70,3 +70,8 @@
 
 (define (zip pairs)
   'replace-this-line)
+
+
+(define-macro (check expr)
+  (list 'if expr ''passd 
+    (list 'quote (list 'failed:expr))))
